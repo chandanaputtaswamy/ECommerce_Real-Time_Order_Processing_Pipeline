@@ -1,0 +1,80 @@
+
+#%RAML 1.0
+title: E-Commerce Order API
+version: v1
+baseUri: http://localhost:8081/api
+mediaType: application/json
+
+types:
+  OrderItem:
+    type: object
+    properties:
+      productId:
+        type: string
+        required: true
+      productName:
+        type: string
+        required: true
+      quantity:
+        type: integer
+        minimum: 1
+      unitPrice:
+        type: number
+        minimum: 0
+
+  OrderRequest:
+    type: object
+    properties:
+      orderId:
+        type: string
+      customer:
+        type: object
+        properties:
+          customerId: string
+          name: string
+          email:
+            type: string
+            required: true
+      currency:
+        type: string
+      items:
+        type: OrderItem[]
+        minItems: 1
+      totalAmount:
+        type: number
+        minimum: 0
+
+/orders:
+  post:
+    description: Accept an e-commerce order
+    body:
+      application/json:
+        type: OrderRequest
+        example:
+          orderId: ORD-1001
+          customer:
+            customerId: CUST-501
+            name: Arun Kumar
+            email: arun@example.com
+          currency: INR
+          items:
+            - productId: PROD-101
+              productName: Laptop
+              quantity: 1
+              unitPrice: 45000
+          totalAmount: 45000
+    responses:
+      202:
+        description: Order accepted for processing
+        body:
+          application/json:
+            example:
+              orderId: ORD-1001
+              status: RECEIVED
+              correlationId: abc-123
+              message: Order accepted for processing
+              receivedAt: "2026-10-09T20:00:00+05:30"
+      400:
+        description: Invalid order request
+      409:
+        description: Duplicate order
